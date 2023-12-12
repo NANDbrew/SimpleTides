@@ -8,10 +8,20 @@ namespace SimpleTides
     public class ModSettings : UnityModManager.ModSettings, IDrawable
     {
         // place settings here
-        [Draw("Antipodal tides: ")] public bool antipode = true;
-        [Draw("Manual settings: ")] public bool manualSet = false;
-        [Draw("Magnitude: ")] public float tideMagnitude = 2f;
-        [Draw("Offset: ")] public float tideOffset = 0f;
+        [Draw("Antipodal tides:")] public bool antipode = true;
+        [Draw("Solar tides:")] public bool solarTides = true;
+
+/*        [Draw("Al'ankh:")] public float aaMag = 1.8f;
+        [Draw("Aestrin:")] public float aeMag = 2.0f;
+        [Draw("Emerald:")] public float eaMag = 1.7f;
+        [Draw("Firefish:")] public float ffMag = 1.6f;
+        [Draw("Happy bay:")] public float hbMag = 1f;
+        [Draw("Oasis:")] public float oaMag = 1.4f;
+        [Draw("Chronos:")] public float chMag = 2.5f;*/
+
+        [Draw("Manual settings:")] public bool manualSet = false;
+        [Draw("Magnitude:")] public float tideMagnitude = 2f;
+        [Draw("Offset:")] public float tideOffset = 0f;
 
         public override void Save(UnityModManager.ModEntry modEntry)
         {
