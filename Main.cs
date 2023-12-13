@@ -1,8 +1,10 @@
-﻿using HarmonyLib;
+﻿using Crest;
+using HarmonyLib;
 using System.Reflection;
 using UnityEngine;
 using UnityModManagerNet;
 using SailwindModdingHelper;
+using UnityEngine.Playables;
 namespace SimpleTides
 {
     public class ModSettings : UnityModManager.ModSettings, IDrawable
@@ -53,7 +55,7 @@ namespace SimpleTides
         }
         static void OnFixedUpdate(UnityModManager.ModEntry modEntry, float dt)
         {
-
+            Patches.OnFixedUpdate();
         }
         static void OnGUI(UnityModManager.ModEntry modEntry)
         {

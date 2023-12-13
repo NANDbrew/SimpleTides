@@ -6,10 +6,17 @@ using System.Threading.Tasks;
 using HarmonyLib;
 using SailwindModdingHelper;
 using UnityModManagerNet;
+using UnityEngine;
+using Crest;
+using UnityEngine.Playables;
+
 namespace SimpleTides
 {
     internal class Patches
     {
+        public static OceanRenderer ocean = RefsDirectory.instance.oceanRenderer;
+        public static float defaultSeaLevel = ocean.transform.position.y;
+        private static Transform shiftingWorld = GameObject.Find("_shifting world").transform;
         public static float GetTide(int islandIndex)
         {
             int period = 12;
@@ -48,24 +55,36 @@ namespace SimpleTides
             //return (float)Math.Cos((Sun.sun.localTime / (period / Math.PI)) - Moon.instance.currentPhase * Math.PI * phaseMult) * (magnitude / 2) + offset;
         }
 
-        [HarmonyPatch(typeof(IslandHorizon))]
-        private static class IslandHorizonPatches
+        public static void OnFixedUpdate()
         {
-            [HarmonyPrefix]
-            [HarmonyPatch("SetHeight")]
-            public static void IslandSetHeightPatch(int ___islandIndex, ref float y)
-            {
-                y -= GetTide(___islandIndex);
-            }
-/*
-            [HarmonyPostfix]
-            [HarmonyPatch("Start")]
-            private static void StartPatch(IslandHorizon __instance)
-            {
-                ModLogger.Log(Main.mod, __instance.islandIndex.ToString() + " " + __instance.name);
-
-            }*/
-            
+            ocean.transform.position = new Vector3(ocean.transform.position.x, defaultSeaLevel + GetTide(1), ocean.transform.position.z);
+            //RegionBlender.instance.GetPrivateField<Region>("currentTargetRegion");
         }
+
+/*        [HarmonyPatch(typeof(RegionBlender))]
+        private static class RegionBlenderPatch
+        {
+            [HarmonyPatch("SwitchRegion")]
+        }*/
+
+        /*        [HarmonyPatch(typeof(IslandHorizon))]
+                private static class IslandHorizonPatches
+                {
+                    [HarmonyPrefix]
+                    [HarmonyPatch("SetHeight")]
+                    public static void IslandSetHeightPatch(int ___islandIndex, ref float y)
+                    {
+                        y -= GetTide(___islandIndex);
+                    }*/
+        /*
+                    [HarmonyPostfix]
+                    [HarmonyPatch("Start")]
+                    private static void StartPatch(IslandHorizon __instance)
+                    {
+                        ModLogger.Log(Main.mod, __instance.islandIndex.ToString() + " " + __instance.name);
+
+                    }
+
+        }*/
     }
 }
