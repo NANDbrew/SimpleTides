@@ -10,33 +10,44 @@ namespace SimpleTides
     public class ModSettings : UnityModManager.ModSettings, IDrawable
     {
         // place settings here
-        [Draw("Antipodal tides:")] public bool antipode = true;
-        [Draw("Solar tides:")] public bool solarTides = true;
+        [Draw("Cheats")] public bool cheats = false;
+        [Draw("Cheat speed", VisibleOn = "cheats|true")] public float cheatSpeed = 10;
 
-/*        [Draw("Al'ankh:")] public float aaMag = 1.8f;
-        [Draw("Aestrin:")] public float aeMag = 2.0f;
-        [Draw("Emerald:")] public float eaMag = 1.7f;
-        [Draw("Firefish:")] public float ffMag = 1.6f;
-        [Draw("Happy bay:")] public float hbMag = 1f;
-        [Draw("Oasis:")] public float oaMag = 1.4f;
-        [Draw("Chronos:")] public float chMag = 2.5f;*/
-
-        [Draw("Manual settings:")] public bool manualSet = false;
-        [Draw("Magnitude:")] public float tideMagnitude = 2f;
-        [Draw("Offset:")] public float tideOffset = 0f;
+        [Draw("Antipodal tides")] public bool antipode = true;
+        [Draw("Solar tides")] public bool solarTides = true;
+        [Draw("Regional tides", Collapsible = true)] public RegionTides regionTides = new RegionTides();
+        [Draw("Regional offsets", DrawType.Slider, Min = -1f, Max = 5f, Collapsible = true)] public RegionOffsets regionOffsets = new RegionOffsets();
+        public class RegionTides
+        {
+            [Draw("Al'Ankh", DrawType.Slider, Min = 0f, Max = 5f)] public float alankh = 2.0f;
+            [Draw("Aestrin", DrawType.Slider, Min = 0f, Max = 5f)] public float aestrin = 1.8f;
+            [Draw("Emerald", DrawType.Slider, Min = 0f, Max = 5f)] public float emerald = 1.4f;
+            [Draw("Fire Fish", DrawType.Slider, Min = 0f, Max = 5f)] public float firefish = 1.3f;
+            [Draw("Chronos", DrawType.Slider, Min = 0f, Max = 5f)] public float chronos = 4.0f;
+        }
+        public class RegionOffsets
+        {
+            [Draw("Al'Ankh", DrawType.Slider, Min = -2f, Max = 2f)] public float alankh = 0.5f;
+            [Draw("Aestrin", DrawType.Slider, Min = -2f, Max = 2f)] public float aestrin = 0.35f;
+            [Draw("Emerald", DrawType.Slider, Min = -2f, Max = 2f)] public float emerald = 0.45f;
+            [Draw("Fire Fish", DrawType.Slider, Min = -2f, Max = 2f)] public float firefish = 0.4f;
+            [Draw("Chronos", DrawType.Slider, Min = -2f, Max = 2f)] public float chronos = 0.95f;
+        }
 
         public override void Save(UnityModManager.ModEntry modEntry)
         {
             Save(this, modEntry);
         }
 
-        public void OnChange() { }
+        public void OnChange() 
+        {
+            Tides.OnChange();
+        }
     }
 
     internal static class Main
     {
         public static ModSettings settings;
-        //public static SailwindModdingHelper.ModLogger logger;
         public static UnityModManager.ModEntry mod;
 
         static bool Load(UnityModManager.ModEntry modEntry)
@@ -55,7 +66,7 @@ namespace SimpleTides
         }
         static void OnFixedUpdate(UnityModManager.ModEntry modEntry, float dt)
         {
-            Patches.OnFixedUpdate();
+            Tides.OnFixedUpdate();
         }
         static void OnGUI(UnityModManager.ModEntry modEntry)
         {

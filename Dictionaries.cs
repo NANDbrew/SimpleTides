@@ -67,9 +67,9 @@ namespace SimpleTides
         public static Dictionary<int, float> islandOffsets = new Dictionary<int, float>()
         {
             // islandIndex, offset in meters
-            {8, -0.70f}, // al'ankh academy
+            {8, -0.50f}, // al'ankh academy
             {20, -0.50f}, // oasis
-            {26, -0.60f}, // temple, (fire fish town)
+            {26, -0.42f}, // temple, (fire fish town)
         };
     }
 }

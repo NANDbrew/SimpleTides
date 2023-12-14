@@ -1,90 +1,79 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using HarmonyLib;
-using SailwindModdingHelper;
 using UnityModManagerNet;
 using UnityEngine;
-using Crest;
-using UnityEngine.Playables;
+
 
 namespace SimpleTides
 {
     internal class Patches
     {
-        public static OceanRenderer ocean = RefsDirectory.instance.oceanRenderer;
-        public static float defaultSeaLevel = ocean.transform.position.y;
-        private static Transform shiftingWorld = GameObject.Find("_shifting world").transform;
-        public static float GetTide(int islandIndex)
-        {
-            int period = 12;
-            float phaseMult = 2;
-            float offset;
-            float magnitude;
-            double solarTide = 0;
-            double lunarTide;
-            Dictionaries.islandRegions.TryGetValue(islandIndex, out string region);
-            if (Main.settings.manualSet)
-            {
-                magnitude = Main.settings.tideMagnitude;
-                offset = Main.settings.tideOffset;
-            }
-            else
-            {
-                Dictionaries.regionalTides.TryGetValue(region, out magnitude);
-                Dictionaries.islandOffsets.TryGetValue(islandIndex, out offset);
-            }
-
-            if (Main.settings.antipode)
-            {
-                period = 6;
-                phaseMult = 4;
-            }
-
-            if (Main.settings.solarTides)
-            {
-                solarTide = Math.Cos(Sun.sun.localTime / (period / Math.PI) + ((phaseMult / 2) * Math.PI));
-                magnitude /= 2.8f;
-
-            }
-            lunarTide = Math.Cos(Sun.sun.localTime / (period / Math.PI) - Moon.instance.currentPhase * (phaseMult * Math.PI));
-
-            return (float)(solarTide / 2.5 + lunarTide * (magnitude / 2) + offset);
-            //return (float)Math.Cos((Sun.sun.localTime / (period / Math.PI)) - Moon.instance.currentPhase * Math.PI * phaseMult) * (magnitude / 2) + offset;
-        }
-
-        public static void OnFixedUpdate()
-        {
-            ocean.transform.position = new Vector3(ocean.transform.position.x, defaultSeaLevel + GetTide(1), ocean.transform.position.z);
-            //RegionBlender.instance.GetPrivateField<Region>("currentTargetRegion");
-        }
-
-/*        [HarmonyPatch(typeof(RegionBlender))]
+        [HarmonyPatch(typeof(RegionBlender))]
         private static class RegionBlenderPatch
         {
-            [HarmonyPatch("SwitchRegion")]
-        }*/
+            [HarmonyPatch("Start")]
+            [HarmonyPostfix]
+            public static void StartPatch(Region ___currentTargetRegion, Region ___initialRegion)
+            {
+                Tides.currentRegion = ___currentTargetRegion;
+                Tides.magnitude = Tides.GetRegionalTide(___currentTargetRegion);
 
-        /*        [HarmonyPatch(typeof(IslandHorizon))]
-                private static class IslandHorizonPatches
+            }
+
+            [HarmonyPatch("UpdateBlend")]
+            [HarmonyPostfix]
+            public static void UpdateBlendPatch(Region ___currentTargetRegion, Transform ___player)
+            {
+                float value = Vector3.Distance(___player.position, ___currentTargetRegion.transform.position);
+                float num = Mathf.InverseLerp(45000f, 43000f, value);
+                Tides.magnitude = Mathf.Lerp(Tides.magnitude, Tides.GetRegionalTide(___currentTargetRegion), num);
+                Tides.offset = Mathf.Lerp(Tides.offset, Tides.GetRegionalOffset(___currentTargetRegion), num);
+            }
+        }
+
+        [HarmonyPatch(typeof(IslandHorizon))]
+        private static class IslandHorizonPatches
+        {
+            [HarmonyPrefix]
+            [HarmonyPatch("SetHeight")]
+            public static void IslandSetHeightPatch(int ___islandIndex, ref float y)
+            {
+                float offset = 0;
+                Dictionaries.islandOffsets.TryGetValue(___islandIndex, out offset);
+
+                y -= offset;
+            }
+        }
+        //test patches
+        [HarmonyPatch(typeof(GPButtonSteeringWheel), "Update")]
+        private static class CheatySpeed
+        {
+            private static void Postfix(GPButtonSteeringWheel __instance, GoPointer ___stickyClickedBy) 
+            {
+                if (!Main.settings.cheats) return;
+                if(___stickyClickedBy)
                 {
-                    [HarmonyPrefix]
-                    [HarmonyPatch("SetHeight")]
-                    public static void IslandSetHeightPatch(int ___islandIndex, ref float y)
+                    if (GameInput.GetKey(InputName.MoveUp))
                     {
-                        y -= GetTide(___islandIndex);
-                    }*/
-        /*
-                    [HarmonyPostfix]
-                    [HarmonyPatch("Start")]
-                    private static void StartPatch(IslandHorizon __instance)
-                    {
-                        ModLogger.Log(Main.mod, __instance.islandIndex.ToString() + " " + __instance.name);
+                        if (GameInput.GetKey(InputName.Run))
+                        {
+                            GameState.currentBoat.GetComponentInParent<Rigidbody>().AddRelativeForce(Vector3.forward * Main.settings.cheatSpeed * 3, ForceMode.Acceleration);
+                        }
+                        else
+                        {
+                            GameState.currentBoat.GetComponentInParent<Rigidbody>().AddRelativeForce(Vector3.forward * Main.settings.cheatSpeed, ForceMode.Acceleration);
+                        }
 
+                        //ModLogger.Log(Main.mod, "recieved input");
                     }
+/*                    else if (GameInput.GetKey(InputName.MoveDown))
+                    {
+                        GameState.currentBoat.GetComponent<Rigidbody>().AddRelativeForce(GameState.currentBoat.transform., ForceMode.Acceleration);
 
-        }*/
+                    }*/
+                }
+            }
+
+        }
     }
 }
