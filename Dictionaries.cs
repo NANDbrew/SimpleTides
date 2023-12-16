@@ -8,68 +8,53 @@ namespace SimpleTides
 {
     internal class Dictionaries
     {
-        public static readonly Dictionary<int, string> islandRegions = new Dictionary<int, string>()
-        {
-            // ---al'ankh---
-            {1, "alankh"}, // gold rock city
-            {2, "alankh"}, // al'nilem
-            {3, "alankh"}, // neverdin
-            {4, "alankh"}, // albacore town
-            {5, "alankh"}, // isle of clear mind
-            {6, "alankh"}, // lion's fang
-            {7, "alankh"}, // alchemist's island
-            {8, "alankh"}, // al'ankh academy
-
-            {20, "oasis"}, // oasis, might want seperate
-
-            // ---emerald archipelago---
-            {9, "emerald"},  // dragon cliffs
-            {10, "emerald"}, // sanctuary
-            {11, "emerald"}, // crab beach
-            {12, "emerald"}, // new port
-            {13, "emerald"}, // sage hills
-            {22, "emerald"}, // serpent isle
-
-            // ---aestrin---
-            {15, "aestrin"}, // fort aestrin
-            {16, "aestrin"}, // sunspire
-            {17, "aestrin"}, // mount malefic
-            {19, "aestrin"}, // eastwind
-            {21, "aestrin"}, // siren song
-            {23, "aestrin"}, // oracle
-            {14, "aestrin"}, // nightcall, don't know where this is, it has m in the name so it must be in aestrin
-
-            // ---happy bay---
-            {18, "happy"}, // happy bay
-            {30, "happy"}, // rock of despair, assumed to be new thing near happy bay
-
-            //---chronos---
-            {25, "chronos"},
-
-            //--- fire fish lagoon---
-            {26, "firefish"}, // temple, (fire fish town)
-            {27, "firefish"}, // shipyard (kicia bay)
-            {28, "firefish"}, // sen'na
-            {29, "firefish"}, // on'na
-            {31, "firefish"}  // fisherman (uninhabited north isle)
-        };
-        public static Dictionary<string, float> regionalTides = new Dictionary<string, float>()
-        {
-            // meters total between high and low tides
-            {"alankh", 1.8f},
-            {"emerald", 1.7f},
-            {"aestrin", 2.0f},
-            {"happy", 1f},
-            {"chronos", 2.5f},
-            {"firefish", 1.6f},
-            {"oasis", 1.4f}
-        };
         public static Dictionary<int, float> islandOffsets = new Dictionary<int, float>()
         {
             // islandIndex, offset in meters
             {8, -0.50f}, // al'ankh academy
             {20, -0.50f}, // oasis
-            {26, -0.42f}, // temple, (fire fish town)
+            {26, -0.42f}, // temple (fire fish town)
         };
+        /*
+                    // ---al'ankh---
+                    {1, 0.0f}, // gold rock city
+                    {2, 0.0f}, // al'nilem
+                    {3, 0.0f}, // neverdin
+                    {4, 0.0f}, // albacore town
+                    {5, 0.0f}, // isle of clear mind
+                    {6, 0.0f}, // lion's fang
+                    {7, 0.0f}, // alchemist's island
+                    {8, -0.5f}, // al'ankh academy
+                    {20, -0.5f}, // oasis
+
+                    // ---emerald archipelago---
+                    {9, 0.0f},  // dragon cliffs
+                    {10, 0.0f}, // sanctuary
+                    {11, 0.0f}, // crab beach
+                    {12, 0.0f}, // new port
+                    {13, 0.0f}, // sage hills
+                    {22, 0.0f}, // serpent isle
+
+                    // ---aestrin---
+                    {15, 0.0f}, // fort aestrin
+                    {16, 0.0f}, // sunspire
+                    {17, 0.0f}, // mount malefic
+                    {19, 0.0f}, // eastwind
+                    {21, 0.0f}, // siren song
+                    {23, 0.0f}, // oracle
+                    {14, 0.0f}, // nightcall, don't know where this is, it has m in the name so it must be in aestrin
+                    {18, 0.0f}, // happy bay
+                    {30, 0.0f}, // rock of despair, assumed to be new thing near happy bay
+
+                    //---chronos---
+                    {25, 0.0f},
+
+                    //--- fire fish lagoon---
+                    {26, -0.42f}, // temple (fire fish town)
+                    {27, 0.0f}, // shipyard (kicia bay)
+                    {28, 0.0f}, // sen'na
+                    {29, 0.0f}, // on'na
+                    {31, 0.0f}  // fisherman (uninhabited north isle)
+        */
     }
 }

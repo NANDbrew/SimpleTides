@@ -8,14 +8,19 @@ using UnityEngine;
 
 namespace SimpleTides
 {
-    internal class Tides
+    public static class Tides
     {
-        private static OceanRenderer ocean = RefsDirectory.instance.oceanRenderer;
-        private static float defaultSeaLevel = ocean.transform.position.y;
+        public static OceanRenderer ocean;
+        public static float defaultSeaLevel;
         public static Region currentRegion;
         public static float magnitude;
         public static float offset;
 
+        public static void Awake()
+        {
+            //ocean = RefsDirectory.instance.oceanRenderer;
+            //defaultSeaLevel = ocean.transform.position.y;
+        }
         //private static Transform shiftingWorld = GameObject.Find("_shifting world").transform;
         public static float SetTide()
         {
@@ -25,13 +30,13 @@ namespace SimpleTides
             double lunarTide;
             float solarMult = 1;
 
-            if (Main.settings.antipode)
+            if (Main.antipode.Value)
             {
                 period = 6;
                 phaseMult = 4;
             }
 
-            if (Main.settings.solarTides)
+            if (Main.solarTides.Value)
             {
                 solarTide = Math.Cos(Sun.sun.localTime / (period / Math.PI) + ((phaseMult / 2) * Math.PI)) * 0.4f;
                 solarMult = 0.71428f;
@@ -44,7 +49,7 @@ namespace SimpleTides
 
         public static void OnFixedUpdate()
         {
-            ocean.transform.position = new Vector3(ocean.transform.position.x, defaultSeaLevel + SetTide(), ocean.transform.position.z);
+            if (ocean != null) ocean.transform.position = new Vector3(ocean.transform.position.x, defaultSeaLevel + SetTide(), ocean.transform.position.z);
         }
         public static void OnChange()
         {
@@ -55,31 +60,31 @@ namespace SimpleTides
 
         public static float GetRegionalTide(Region region)
         {
-            if (region.name.Contains("ankh")) return Main.settings.regionTides.alankh;
+            if (region.name.Contains("ankh")) return Main.regionTides.alankh.Value;
             if (region.name.Contains("Medi"))
             {
-                if (region.name.Contains("East")) return Main.settings.regionTides.chronos;
-                return Main.settings.regionTides.aestrin;
+                if (region.name.Contains("East")) return Main.regionTides.chronos.Value;
+                return Main.regionTides.aestrin.Value;
             }
             if (region.name.Contains("Emerald"))
             {
-                if (region.name.Contains("Lagoon")) return Main.settings.regionTides.firefish;
-                return Main.settings.regionTides.emerald;
+                if (region.name.Contains("Lagoon")) return Main.regionTides.firefish.Value;
+                return Main.regionTides.emerald.Value;
             }
             return 1f;
         }
         public static float GetRegionalOffset(Region region)
         {
-            if (region.name.Contains("ankh")) return Main.settings.regionOffsets.alankh;
+            if (region.name.Contains("ankh")) return Main.regionOffsets.alankh.Value;
             if (region.name.Contains("Medi"))
             {
-                if (region.name.Contains("East")) return Main.settings.regionOffsets.chronos;
-                return Main.settings.regionOffsets.aestrin;
+                if (region.name.Contains("East")) return Main.regionOffsets.chronos.Value;
+                return Main.regionOffsets.aestrin.Value;
             }
             if (region.name.Contains("Emerald"))
             {
-                if (region.name.Contains("Lagoon")) return Main.settings.regionOffsets.firefish;
-                return Main.settings.regionOffsets.emerald;
+                if (region.name.Contains("Lagoon")) return Main.regionOffsets.firefish.Value;
+                return Main.regionOffsets.emerald.Value;
             }
             return 1f;
         }

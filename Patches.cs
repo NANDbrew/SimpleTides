@@ -1,6 +1,5 @@
 ﻿
 using HarmonyLib;
-using UnityModManagerNet;
 using UnityEngine;
 
 
@@ -15,6 +14,9 @@ namespace SimpleTides
             [HarmonyPostfix]
             public static void StartPatch(Region ___currentTargetRegion, Region ___initialRegion)
             {
+                Tides.ocean = RefsDirectory.instance.oceanRenderer;
+                Tides.defaultSeaLevel = RefsDirectory.instance.oceanRenderer.transform.position.y;
+
                 Tides.currentRegion = ___currentTargetRegion;
                 Tides.magnitude = Tides.GetRegionalTide(___currentTargetRegion);
 
@@ -45,12 +47,12 @@ namespace SimpleTides
             }
         }
         //test patches
-        [HarmonyPatch(typeof(GPButtonSteeringWheel), "Update")]
+ /*       [HarmonyPatch(typeof(GPButtonSteeringWheel), "Update")]
         private static class CheatySpeed
         {
             private static void Postfix(GPButtonSteeringWheel __instance, GoPointer ___stickyClickedBy) 
             {
-                if (!Main.settings.cheats) return;
+                if (!Main.cheats.Value) return;
                 if(___stickyClickedBy)
                 {
                     if (GameInput.GetKey(InputName.MoveUp))
@@ -66,14 +68,19 @@ namespace SimpleTides
 
                         //ModLogger.Log(Main.mod, "recieved input");
                     }
-/*                    else if (GameInput.GetKey(InputName.MoveDown))
+                    else if (GameInput.GetKey(InputName.MoveDown))
                     {
-                        GameState.currentBoat.GetComponent<Rigidbody>().AddRelativeForce(GameState.currentBoat.transform., ForceMode.Acceleration);
-
-                    }*/
+                        if (GameInput.GetKey(InputName.Run))
+                        {
+                            GameState.currentBoat.GetComponent<Rigidbody>().AddRelativeForce(Vector3.back * Main.settings.cheatSpeed * 1.5f, ForceMode.Acceleration);
+                        }
+                        else
+                        {
+                            GameState.currentBoat.GetComponent<Rigidbody>().AddRelativeForce(Vector3.back * Main.settings.cheatSpeed * 0.5f, ForceMode.Acceleration);
+                        }
+                    }
                 }
             }
-
-        }
+        }*/
     }
 }

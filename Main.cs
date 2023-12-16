@@ -2,80 +2,70 @@
 using HarmonyLib;
 using System.Reflection;
 using UnityEngine;
-using UnityModManagerNet;
 using SailwindModdingHelper;
 using UnityEngine.Playables;
+using BepInEx;
+using BepInEx.Configuration;
+using BepInEx.Logging;
+using System;
+
+
 namespace SimpleTides
 {
-    public class ModSettings : UnityModManager.ModSettings, IDrawable
+
+    internal class RegionList
     {
-        // place settings here
-        [Draw("Cheats")] public bool cheats = false;
-        [Draw("Cheat speed", VisibleOn = "cheats|true")] public float cheatSpeed = 10;
-
-        [Draw("Antipodal tides")] public bool antipode = true;
-        [Draw("Solar tides")] public bool solarTides = true;
-        [Draw("Regional tides", Collapsible = true)] public RegionTides regionTides = new RegionTides();
-        [Draw("Regional offsets", DrawType.Slider, Min = -1f, Max = 5f, Collapsible = true)] public RegionOffsets regionOffsets = new RegionOffsets();
-        public class RegionTides
-        {
-            [Draw("Al'Ankh", DrawType.Slider, Min = 0f, Max = 5f)] public float alankh = 2.0f;
-            [Draw("Aestrin", DrawType.Slider, Min = 0f, Max = 5f)] public float aestrin = 1.8f;
-            [Draw("Emerald", DrawType.Slider, Min = 0f, Max = 5f)] public float emerald = 1.4f;
-            [Draw("Fire Fish", DrawType.Slider, Min = 0f, Max = 5f)] public float firefish = 1.3f;
-            [Draw("Chronos", DrawType.Slider, Min = 0f, Max = 5f)] public float chronos = 4.0f;
-        }
-        public class RegionOffsets
-        {
-            [Draw("Al'Ankh", DrawType.Slider, Min = -2f, Max = 2f)] public float alankh = 0.5f;
-            [Draw("Aestrin", DrawType.Slider, Min = -2f, Max = 2f)] public float aestrin = 0.35f;
-            [Draw("Emerald", DrawType.Slider, Min = -2f, Max = 2f)] public float emerald = 0.45f;
-            [Draw("Fire Fish", DrawType.Slider, Min = -2f, Max = 2f)] public float firefish = 0.4f;
-            [Draw("Chronos", DrawType.Slider, Min = -2f, Max = 2f)] public float chronos = 0.95f;
-        }
-
-        public override void Save(UnityModManager.ModEntry modEntry)
-        {
-            Save(this, modEntry);
-        }
-
-        public void OnChange() 
-        {
-            Tides.OnChange();
-        }
+        internal ConfigEntry<float> alankh;
+        internal ConfigEntry<float> aestrin;
+        internal ConfigEntry<float> emerald;
+        internal ConfigEntry<float> firefish;
+        internal ConfigEntry<float> chronos;
     }
 
-    internal static class Main
+    [BepInPlugin(GUID, NAME, VERSION)]
+    internal class Main : BaseUnityPlugin
     {
-        public static ModSettings settings;
-        public static UnityModManager.ModEntry mod;
+        public const string GUID = "com.nandbrew.simpletides";
+        public const string NAME = "Simple Tides";
+        public const string VERSION = "1.0.0";
 
-        static bool Load(UnityModManager.ModEntry modEntry)
+        internal static Main instance;
+
+        internal static ManualLogSource logSource;
+        //public event EventHandler SettingChanged;
+
+        // settings
+        internal static ConfigEntry<bool> solarTides;
+        internal static ConfigEntry<bool> antipode;
+        internal static RegionList regionTides = new RegionList();
+        internal static RegionList regionOffsets = new RegionList();
+
+        private void Awake()
         {
-            var harmony = new Harmony(modEntry.Info.Id);
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
+            instance = this;
+            //logSource = Logger;
+            Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), GUID);
 
-            settings = UnityModManager.ModSettings.Load<ModSettings>(modEntry);
+            solarTides = Config.Bind("Options", "Solar tides", false);
+            antipode = Config.Bind("Options", "Antipodal tides", true);
 
-            // uncomment if using settings
-            modEntry.OnGUI = OnGUI;
-            modEntry.OnSaveGUI = OnSaveGUI;
-            modEntry.OnFixedUpdate = OnFixedUpdate;
-            mod = modEntry;
-            return true;
-        }
-        static void OnFixedUpdate(UnityModManager.ModEntry modEntry, float dt)
+            regionTides.alankh = Config.Bind("Regional tides", "Al Ankh", 2.0f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
+            regionTides.aestrin = Config.Bind("Regional tides", "Aestrin", 1.8f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
+            regionTides.emerald = Config.Bind("Regional tides", "Emerald", 1.4f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
+            regionTides.firefish = Config.Bind("Regional tides", "Fire Fish", 1.3f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
+            regionTides.chronos = Config.Bind("Regional tides", "Chronos", 4.0f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
+
+            regionOffsets.alankh = Config.Bind("Regional offsets", "Al Ankh", 0.50f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
+            regionOffsets.aestrin = Config.Bind("Regional offsets", "Aestrin", 0.35f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
+            regionOffsets.emerald = Config.Bind("Regional offsets", "Emerald", 0.45f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
+            regionOffsets.firefish = Config.Bind("Regional offsets", "Fire Fish", 0.40f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
+            regionOffsets.chronos = Config.Bind("Regional offsets", "Chronos", 0.95f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
+
+            Tides.Awake();
+    }
+        private void FixedUpdate()
         {
             Tides.OnFixedUpdate();
-        }
-        static void OnGUI(UnityModManager.ModEntry modEntry)
-        {
-            settings.Draw(modEntry);
-        }
-
-        static void OnSaveGUI(UnityModManager.ModEntry modEntry)
-        {
-            settings.Save(modEntry);
         }
     }
 }
