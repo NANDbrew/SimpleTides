@@ -1,14 +1,13 @@
 # SimpleTides
 
-A quick test using Buen's idea of moving the islands up and down to simulate tides.
+Each region has its' own tides, with Fire Fish Lagoon having the smallest, and Al'Ankh having the biggest.
+Some ports will be more/less difficult to navigate during low/high tide, but none are actually inaccessible.
 
-By default this goes up/down 1 meter from the standard water level.
-Be careful to put your character on a boat or in the water before activating this mod; because it moves the land up and down you might end up underground otherwise.
+**Settings**
+- Antipodal tides: two high tides per day. (on by default)
+- Solar tides: sun and moon both affect tides. (off by default)
 
-
-
-Settings:
- - Antipodal tides: two high tides per day
- - Manual settings: use settings below. otherwise use built-in region/island specific values
- - Magnitude: total variation in meters between high and low tides (default 2)
- - Offset: midpoint offset from normal water level (default 0)
+**Advanced Settings**
+- Settings for regional heights and magnitudes
+ - Magnitudes: total variation in meters between high and low tides.
+ - Offsets: meters above normal sea level at high tide.

@@ -16,12 +16,12 @@ namespace SimpleTides
         public static float magnitude;
         public static float offset;
 
-        public static void Awake()
+/*        public static void Awake()
         {
             //ocean = RefsDirectory.instance.oceanRenderer;
             //defaultSeaLevel = ocean.transform.position.y;
-        }
-        //private static Transform shiftingWorld = GameObject.Find("_shifting world").transform;
+            Debug.Log("Tides instance is awake");
+        }*/
         public static float SetTide()
         {
             int period = 12;

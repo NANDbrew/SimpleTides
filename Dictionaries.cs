@@ -12,6 +12,7 @@ namespace SimpleTides
         {
             // islandIndex, offset in meters
             {8, -0.50f}, // al'ankh academy
+            {15, 0.25f }, // fort aestrin
             {20, -0.50f}, // oasis
             {26, -0.42f}, // temple (fire fish town)
         };
