@@ -26,7 +26,7 @@ namespace SimpleTides
     {
         public const string GUID = "com.nandbrew.simpletides";
         public const string NAME = "Simple Tides";
-        public const string VERSION = "1.0.1";
+        public const string VERSION = "1.0.2";
 
         internal static Main instance;
 
@@ -47,6 +47,7 @@ namespace SimpleTides
 
             solarTides = Config.Bind("Options", "Solar tides", false, new ConfigDescription("Sun affects tides (40% as much as moon)"));
             antipode = Config.Bind("Options", "Antipodal tides", true, new ConfigDescription("Two high tides per day (off: one per day)"));
+            //sailHeight = Config.Bind("Options", "Adjust sail height calculation", true, new ConfigDescription("sail power is based on height. adjust it to follow water", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
 
             regionTides.alankh = Config.Bind("Regional tides", "Al Ankh", 2.0f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
             regionTides.aestrin = Config.Bind("Regional tides", "Aestrin", 1.8f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true }));

@@ -96,6 +96,7 @@
     <Compile Include="Main.cs" />
     <Compile Include="Patches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SailHeightPatch.cs" />
     <Compile Include="Tides.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -109,7 +110,12 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /y "SimpleTides.dll" "E:\Program Files\Sailwind -BepInEx\BepInEx\plugins"</PostBuildEvent>
+    <PostBuildEvent>mkdir "C:\Program Files (x86)\Steam\steamapps\common\Sailwind\BepInEx\plugins\SimpleTides"
+xcopy /y "SimpleTides.dll" "C:\Program Files (x86)\Steam\steamapps\common\Sailwind\BepInEx\plugins\SimpleTides"
+cd "..\"
+xcopy /y "manifest.json" "C:\Program Files (x86)\Steam\steamapps\common\Sailwind\BepInEx\plugins\SimpleTides"
+xcopy /y "icon.png" "C:\Program Files (x86)\Steam\steamapps\common\Sailwind\BepInEx\plugins\SimpleTides"
+xcopy /y "README.md" "C:\Program Files (x86)\Steam\steamapps\common\Sailwind\BepInEx\plugins\SimpleTides"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="packages\BepInEx.Core.5.4.11\build\BepInEx.Core.targets" Condition="Exists('packages\BepInEx.Core.5.4.11\build\BepInEx.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
