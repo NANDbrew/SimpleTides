@@ -12,24 +12,17 @@ namespace SimpleTides
         {
             [HarmonyPatch("Start")]
             [HarmonyPostfix]
-            public static void StartPatch(Region ___currentTargetRegion, Region ___initialRegion)
+            public static void StartPatch(Region ___currentTargetRegion)
             {
-                Tides.ocean = RefsDirectory.instance.oceanRenderer;
-                Tides.defaultSeaLevel = RefsDirectory.instance.oceanRenderer.transform.position.y;
-
-                Tides.currentRegion = ___currentTargetRegion;
-                Tides.magnitude = Tides.GetRegionalTide(___currentTargetRegion);
-
+                Tides.Setup(RefsDirectory.instance.oceanRenderer, ___currentTargetRegion);
             }
 
-            [HarmonyPatch("UpdateBlend")]
+            [HarmonyPatch("Update")]
             [HarmonyPostfix]
             public static void UpdateBlendPatch(Region ___currentTargetRegion, Transform ___player)
             {
-                float value = Vector3.Distance(___player.position, ___currentTargetRegion.transform.position);
-                float num = Mathf.InverseLerp(45000f, 43000f, value);
-                Tides.magnitude = Mathf.Lerp(Tides.magnitude, Tides.GetRegionalTide(___currentTargetRegion), num);
-                Tides.offset = Mathf.Lerp(Tides.offset, Tides.GetRegionalOffset(___currentTargetRegion), num);
+                float distance = Vector3.Distance(___player.position, ___currentTargetRegion.transform.position);
+                Tides.UpdateBlend(___currentTargetRegion, distance);
             }
         }
 

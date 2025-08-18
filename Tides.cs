@@ -12,22 +12,24 @@ namespace SimpleTides
     {
         public static OceanRenderer ocean;
         public static float defaultSeaLevel;
-        public static Region currentRegion;
         public static float magnitude;
         public static float offset;
+        private const float solarInfluence = 0.4f;
+        private const float solarComp = 1 / (1 + solarInfluence);// number by which to multiply output magnitude to normalize totals
 
-/*        public static void Awake()
+        public static void Setup(OceanRenderer newOcean, Region initialRegion)
         {
-            //ocean = RefsDirectory.instance.oceanRenderer;
-            //defaultSeaLevel = ocean.transform.position.y;
-            Debug.Log("Tides instance is awake");
-        }*/
-        public static float SetTide()
+            ocean = newOcean;
+            defaultSeaLevel = ocean.transform.position.y;
+            magnitude = GetRegionalTide(initialRegion);
+        }
+
+        public static float GetTide()
         {
             int period = 12;
             float phaseMult = 2;
-            double solarTide = 0;
-            double lunarTide;
+            float solarTide = 0;
+            float lunarTide;
             float solarMult = 1;
 
             if (Main.antipode.Value)
@@ -38,26 +40,28 @@ namespace SimpleTides
 
             if (Main.solarTides.Value)
             {
-                solarTide = Math.Cos(Sun.sun.localTime / (period / Math.PI) + ((phaseMult / 2) * Math.PI)) * 0.4f;
-                solarMult = 0.71428f;
+                solarTide = Mathf.Cos(Sun.sun.localTime / (period / Mathf.PI) + (phaseMult / 2) * Mathf.PI) * solarInfluence;
+                solarMult = solarComp; 
+                //0.71428f; // if solar influence is 40%, multiply by (1 / 1.4) to normalize (sun + moon) to 1
             }
 
-            lunarTide = Math.Cos(Sun.sun.localTime / (period / Math.PI) - Moon.instance.currentPhase * (phaseMult * Math.PI));
+            lunarTide = Mathf.Cos(Sun.sun.localTime / (period / Mathf.PI) - Moon.instance.currentPhase * (phaseMult * Mathf.PI));
 
-            return (float)((solarTide + lunarTide) * (solarMult * magnitude / 2) - (magnitude / 2 - offset));
+            return (solarTide + lunarTide) * (solarMult * magnitude / 2) - (magnitude / 2 - offset);
         }
 
         public static void OnFixedUpdate()
         {
-            if (ocean != null) ocean.transform.position = new Vector3(ocean.transform.position.x, defaultSeaLevel + SetTide(), ocean.transform.position.z);
-        }
-        public static void OnChange()
-        {
-            magnitude = GetRegionalTide(currentRegion);
-            offset = GetRegionalOffset(currentRegion);
-            //RegionBlender.instance.InvokePrivateMethod("UpdateBlend");
+            if (ocean != null) ocean.transform.position = new Vector3(ocean.transform.position.x, defaultSeaLevel + GetTide(), ocean.transform.position.z);
         }
 
+        public static void UpdateBlend(Region region, float distance)
+        {
+            float lerpValue = Mathf.InverseLerp(45000f, 43000f, distance);
+            magnitude = Mathf.Lerp(magnitude, GetRegionalTide(region), lerpValue);
+            offset = Mathf.Lerp(offset, GetRegionalOffset(region), lerpValue);
+
+        }
         public static float GetRegionalTide(Region region)
         {
             if (region.name.Contains("ankh")) return Main.regionTides.alankh.Value;

@@ -8,10 +8,8 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using System;
 
-
 namespace SimpleTides
 {
-
     internal class RegionList
     {
         internal ConfigEntry<float> alankh;
