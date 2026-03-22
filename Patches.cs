@@ -12,18 +12,24 @@ namespace SimpleTides
         {
             [HarmonyPatch("Start")]
             [HarmonyPostfix]
-            public static void StartPatch(Region ___currentTargetRegion)
+            public static void StartPatch()
             {
-                Tides.Setup(RefsDirectory.instance.oceanRenderer, ___currentTargetRegion);
+                Tides.Setup();
             }
 
+            [HarmonyPatch("SwitchRegion")]
+            [HarmonyPostfix]
+            public static void SwitchRegionPatch(Region newRegion)
+            {
+                Tides.SwitchRegion(newRegion);
+            }
             [HarmonyPatch("Update")]
             [HarmonyPostfix]
-            public static void UpdateBlendPatch(Region ___currentTargetRegion, Transform ___player)
+            public static void UpdatePatch(Region ___currentTargetRegion)
             {
-                float distance = Vector3.Distance(___player.position, ___currentTargetRegion.transform.position);
-                Tides.UpdateBlend(___currentTargetRegion, distance);
-            }
+                if (!Main.debugRegionals.Value) return;
+                Tides.SwitchRegion(___currentTargetRegion);
+            }        
         }
 
         [HarmonyPatch(typeof(IslandHorizon))]

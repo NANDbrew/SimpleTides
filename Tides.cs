@@ -1,9 +1,4 @@
 ﻿using Crest;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SimpleTides
@@ -12,85 +7,82 @@ namespace SimpleTides
     {
         public static OceanRenderer ocean;
         public static float defaultSeaLevel;
-        public static float magnitude;
-        public static float offset;
-        private const float solarInfluence = 0.4f;
-        private const float solarComp = 1 / (1 + solarInfluence);// number by which to multiply output magnitude to normalize totals
+        public static float solarInfluence = 0.4f;
 
-        public static void Setup(OceanRenderer newOcean, Region initialRegion)
+        private static float magnitude = 0f;
+        private static float offset = 0f;
+        private static float solarComp = 1 / (1 + solarInfluence);// number by which to multiply output magnitude to normalize totals
+        private static TideRegion currentRegionals = TideRegion.zero;
+        private static float periodPI = 12 / Mathf.PI;
+        private static float phaseMult = 2;
+        
+        internal static void Setup()
         {
-            ocean = newOcean;
+            ocean = RefsDirectory.instance.oceanRenderer;
             defaultSeaLevel = ocean.transform.position.y;
-            magnitude = GetRegionalTide(initialRegion);
+            UpdateMults();
+        }
+
+        internal static void UpdateMults()
+        {
+            var period = Main.antipode.Value ? 6 : 12;
+            phaseMult = 24 / period;
+            periodPI = period / Mathf.PI;
+            solarComp = Main.solarTides.Value ? 1 / (1 + solarInfluence) : 1;
         }
 
         public static float GetTide()
         {
-            int period = 12;
-            float phaseMult = 2;
+            float lunarTide = Mathf.Cos((Sun.sun.localTime / periodPI) - Moon.instance.currentPhase * (phaseMult * Mathf.PI));
+
             float solarTide = 0;
-            float lunarTide;
-            float solarMult = 1;
-
-            if (Main.antipode.Value)
-            {
-                period = 6;
-                phaseMult = 4;
-            }
-
             if (Main.solarTides.Value)
             {
-                solarTide = Mathf.Cos(Sun.sun.localTime / (period / Mathf.PI) + (phaseMult / 2) * Mathf.PI) * solarInfluence;
-                solarMult = solarComp; 
-                //0.71428f; // if solar influence is 40%, multiply by (1 / 1.4) to normalize (sun + moon) to 1
+                solarTide = Mathf.Cos(Sun.sun.localTime / periodPI + (phaseMult / 2) * Mathf.PI) * solarInfluence;
             }
 
-            lunarTide = Mathf.Cos(Sun.sun.localTime / (period / Mathf.PI) - Moon.instance.currentPhase * (phaseMult * Mathf.PI));
-
-            return (solarTide + lunarTide) * (solarMult * magnitude / 2) - (magnitude / 2 - offset);
+            return ((solarTide + lunarTide) * (solarComp * magnitude / 2)) - ((magnitude / 2) - offset);
         }
 
-        public static void OnFixedUpdate()
+        internal static void OnFixedUpdate()
         {
             if (ocean != null) ocean.transform.position = new Vector3(ocean.transform.position.x, defaultSeaLevel + GetTide(), ocean.transform.position.z);
+            //ocean.transform.Translate(0f, (GetTide() - ocean.transform.position.y), 0f);
         }
 
-        public static void UpdateBlend(Region region, float distance)
+        internal static void UpdateBlend()
         {
-            float lerpValue = Mathf.InverseLerp(45000f, 43000f, distance);
-            magnitude = Mathf.Lerp(magnitude, GetRegionalTide(region), lerpValue);
-            offset = Mathf.Lerp(offset, GetRegionalOffset(region), lerpValue);
+            //float blendRate = 0.001f;//(GameState.recovering || GameState.currentlyLoading) ? 0.1f : 0.0001f;
+            if (GameState.distanceToLand < 10000)
+            {
+                var blendRate = 1 / GameState.distanceToLand;
+                magnitude = Mathf.MoveTowards(magnitude, currentRegionals.magnitude, blendRate * 3);
+                offset = Mathf.MoveTowards(offset, currentRegionals.offset, blendRate);
+            }
+            else
+            {
+                var blendRate = 0.0002f;
+                magnitude = Mathf.MoveTowards(magnitude, 0f, blendRate * 3);
+                offset = Mathf.MoveTowards(offset, 0f, blendRate);
+            }
+        }
+        public static void SwitchRegion(Region newRegion)
+        {
+            currentRegionals = GetRegionals(newRegion);
+        }
 
-        }
-        public static float GetRegionalTide(Region region)
+        public static TideRegion GetRegionals(Region region)
         {
-            if (region.name.Contains("ankh")) return Main.regionTides.alankh.Value;
-            if (region.name.Contains("Medi"))
+            // hopefully other mods can add their regions to this
+            if (Dictionaries.regionalDefaults.TryGetValue(region.name, out TideRegion regionValues))
             {
-                if (region.name.Contains("East")) return Main.regionTides.chronos.Value;
-                return Main.regionTides.aestrin.Value;
+                return regionValues;
             }
-            if (region.name.Contains("Emerald"))
-            {
-                if (region.name.Contains("Lagoon")) return Main.regionTides.firefish.Value;
-                return Main.regionTides.emerald.Value;
-            }
-            return 1f;
+            return TideRegion.zero;
         }
-        public static float GetRegionalOffset(Region region)
+        public static void AddRegion(Region region, float magnitude, float offset)
         {
-            if (region.name.Contains("ankh")) return Main.regionOffsets.alankh.Value;
-            if (region.name.Contains("Medi"))
-            {
-                if (region.name.Contains("East")) return Main.regionOffsets.chronos.Value;
-                return Main.regionOffsets.aestrin.Value;
-            }
-            if (region.name.Contains("Emerald"))
-            {
-                if (region.name.Contains("Lagoon")) return Main.regionOffsets.firefish.Value;
-                return Main.regionOffsets.emerald.Value;
-            }
-            return 1f;
+            Dictionaries.regionalDefaults.Add(region.name, new TideRegion { magnitude = magnitude, offset = offset });
         }
     }
 }
