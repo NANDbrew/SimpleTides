@@ -14,6 +14,7 @@ namespace SimpleTides
         {
 
         };
+
         /*
                     // ---al'ankh---
                     {1, 0.0f}, // gold rock city

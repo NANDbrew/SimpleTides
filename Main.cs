@@ -180,10 +180,28 @@ namespace SimpleTides
                     }
                 }
             }
-
-            Dictionaries.regionalDefaults = output;
-            Dictionaries.islandOffsets = map;
-
+            if (Dictionaries.regionalDefaults.Count <= output.Count)
+            {
+                Dictionaries.regionalDefaults = output;
+            }
+            else
+            {
+                foreach (var region in output)
+                {
+                    Dictionaries.regionalDefaults[region.Key] = region.Value;
+                }
+            }
+            if (Dictionaries.islandOffsets.Count <= map.Count)
+            {
+                Dictionaries.islandOffsets = map;
+            }
+            else
+            {
+                foreach (var island in map)
+                {
+                    Dictionaries.islandOffsets[island.Key] = island.Value;
+                }
+            }
         }
     }
 
