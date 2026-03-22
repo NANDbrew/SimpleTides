@@ -1,0 +1,9 @@
+﻿{
+    "name": "SimpleTides",
+    "version_number": "1.0.2",
+    "website_url": "https://github.com/NANDbrew/SimpleTides",
+    "description": "The world feels more alive when the water follows the Moon",
+    "dependencies": [
+        "BepInEx-BepInExPack-5.4.2100"
+    ]
+}

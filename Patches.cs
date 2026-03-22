@@ -1,71 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using HarmonyLib;
-using SailwindModdingHelper;
-using UnityModManagerNet;
+using UnityEngine;
+
+
 namespace SimpleTides
 {
     internal class Patches
     {
-        public static float GetTide(int islandIndex)
+        [HarmonyPatch(typeof(RegionBlender))]
+        private static class RegionBlenderPatch
         {
-            int period = 12;
-            float phaseMult = 2;
-            float offset;
-            float magnitude;
-            double solarTide = 0;
-            double lunarTide;
-            Dictionaries.islandRegions.TryGetValue(islandIndex, out string region);
-            if (Main.settings.manualSet)
+            [HarmonyPatch("Start")]
+            [HarmonyPostfix]
+            public static void StartPatch()
             {
-                magnitude = Main.settings.tideMagnitude;
-                offset = Main.settings.tideOffset;
-            }
-            else
-            {
-                Dictionaries.regionalTides.TryGetValue(region, out magnitude);
-                Dictionaries.islandOffsets.TryGetValue(islandIndex, out offset);
+                Tides.Setup();
             }
 
-            if (Main.settings.antipode)
+            [HarmonyPatch("SwitchRegion")]
+            [HarmonyPostfix]
+            public static void SwitchRegionPatch(Region newRegion)
             {
-                period = 6;
-                phaseMult = 4;
+                Tides.SwitchRegion(newRegion);
             }
-
-            if (Main.settings.solarTides)
+            [HarmonyPatch("Update")]
+            [HarmonyPostfix]
+            public static void UpdatePatch(Region ___currentTargetRegion)
             {
-                solarTide = Math.Cos(Sun.sun.localTime / (period / Math.PI) + ((phaseMult / 2) * Math.PI));
-                magnitude /= 2.8f;
-
-            }
-            lunarTide = Math.Cos(Sun.sun.localTime / (period / Math.PI) - Moon.instance.currentPhase * (phaseMult * Math.PI));
-
-            return (float)(solarTide / 2.5 + lunarTide * (magnitude / 2) + offset);
-            //return (float)Math.Cos((Sun.sun.localTime / (period / Math.PI)) - Moon.instance.currentPhase * Math.PI * phaseMult) * (magnitude / 2) + offset;
+                if (!Main.debugRegionals.Value) return;
+                Tides.SwitchRegion(___currentTargetRegion);
+            }        
         }
 
         [HarmonyPatch(typeof(IslandHorizon))]
-        private static class IslandHorizonPatches
+        private static class IslandHorizonPatch
         {
             [HarmonyPrefix]
             [HarmonyPatch("SetHeight")]
             public static void IslandSetHeightPatch(int ___islandIndex, ref float y)
             {
-                y -= GetTide(___islandIndex);
-            }
-/*
-            [HarmonyPostfix]
-            [HarmonyPatch("Start")]
-            private static void StartPatch(IslandHorizon __instance)
-            {
-                ModLogger.Log(Main.mod, __instance.islandIndex.ToString() + " " + __instance.name);
+                if (Dictionaries.islandOffsets.TryGetValue(___islandIndex, out float offset)) y -= offset;
 
-            }*/
-            
+            }
         }
     }
 }

@@ -1,7 +1,0 @@
-﻿{
-  "Id": "SimpleTides",
-  "DisplayName": "Simple Tides",
-  "Author": "NANDbrew",
-  "Version": "0.3.0",
-  "EntryMethod": "SimpleTides.Main.Load"
-}
